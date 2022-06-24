@@ -9,7 +9,7 @@ package examen2p2_carlosbarahona_12041015;
  *
  * @author Admin
  */
-public class Main extends javax.swing.JFrame {
+public class Main extends javax.swing.JFrame implements Runnable  {
 
     /**
      * Creates new form Main
@@ -52,6 +52,11 @@ public class Main extends javax.swing.JFrame {
         jScrollPane2.setViewportView(jTextArea1);
 
         jButton1.setText("Grabar canción");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Guardar Canción");
 
@@ -107,6 +112,29 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+         hiloGrabar = new Thread((Runnable) this);
+        hiloGrabar.start();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+     public void run() {
+        
+
+            try {
+                for (int i = 3; i >= 1; i--) {
+                
+                    jLabel1.setText("Grabando en "+i+"...");
+                    
+                    Thread.sleep(1000);
+                }
+                jLabel1.setText("Grabando...");
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+       
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -154,4 +182,5 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
+    Thread hiloGrabar;
 }
