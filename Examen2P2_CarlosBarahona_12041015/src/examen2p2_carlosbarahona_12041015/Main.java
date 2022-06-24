@@ -32,7 +32,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
         initComponents();
         setLocationRelativeTo(null);
         setTitle("Los Sintetizadores Antonio Ponce versión Ancalmo");
-
+        jTextArea1.setEditable(false);
         if (datosCanciones.size() > 0) {
             for (int x = 0; x < datosCanciones.size(); x++) {
 
@@ -112,6 +112,9 @@ public class Main extends javax.swing.JFrame implements Runnable {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextArea1KeyPressed(evt);
             }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTextArea1KeyTyped(evt);
+            }
         });
         jScrollPane2.setViewportView(jTextArea1);
 
@@ -190,6 +193,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         if (!hiloGrabar.isAlive() && jLabel1.getText().equals("Grabando...")) {
+            
             String nombreCancion = JOptionPane.showInputDialog("Nombre de la Canción");
             String categoriaCancion = JOptionPane.showInputDialog("Categoría de la Canción");
             String caracteresCancion = jTextArea1.getText().replaceAll("[^a-zA-Z]", "");
@@ -209,6 +213,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
                     jTextArea1.setText("");
                     try {
                         guardarDato(cancion);
+                        jTextArea1.setEditable(false);
                     } catch (IOException ex) {
                         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (ClassNotFoundException ex) {
@@ -236,6 +241,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
                         jTextArea1.setText("");
                         try {
                             guardarDato(cancion);
+                            jTextArea1.setEditable(false);
                         } catch (IOException ex) {
                             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                         } catch (ClassNotFoundException ex) {
@@ -255,14 +261,17 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
     private void jTextArea1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyPressed
         // TODO add your handling code here:
-        String texto = jTextArea1.getText();
-        for (int i = charIndex; i < texto.length(); i++) {
-            char caracter=texto.charAt(i);
-            System.out.println(i+": "+caracter);
-            charIndex = i;
-        }
-     
+
+
     }//GEN-LAST:event_jTextArea1KeyPressed
+
+    private void jTextArea1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyTyped
+        // TODO add your handling code here:
+        char texto=evt.getKeyChar();
+        int valor=texto;
+        valor=valor-40;
+        jProgressBar1.setValue(valor);
+    }//GEN-LAST:event_jTextArea1KeyTyped
 
     public void run() {
 
@@ -273,6 +282,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
                 Thread.sleep(1000);
             }
+               jTextArea1.setEditable(true);
             jLabel1.setText("Grabando...");
         } catch (Exception e) {
             System.out.println(e);
@@ -287,6 +297,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
         datosCanciones.add(datos);
         escribirDatos.writeObject(datosCanciones);
         escribirDatos.close();
+           
         JOptionPane.showMessageDialog(null, "La canción fue agregada. (Si usted agregó números en la cancion fueron eliminados)");
 
         FileInputStream archivo2 = new FileInputStream(destino);
@@ -295,6 +306,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
         datosCanciones = (ArrayList) objeto.readObject();
         objeto.close();
+        
 
     }
 
@@ -333,6 +345,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
             datosCanciones = (ArrayList) objeto.readObject();
             objeto.close();
         }
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -360,6 +373,6 @@ public class Main extends javax.swing.JFrame implements Runnable {
     Thread hiloGrabar;
     Thread hiloGrabando;
     Thread hiloReproducir;
-    private static int charIndex=0;
+    private static int charIndex = 0;
     private static ArrayList datosCanciones = new ArrayList();
 }
