@@ -5,7 +5,16 @@
  */
 package examen2p2_carlosbarahona_12041015;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -19,10 +28,12 @@ public class Main extends javax.swing.JFrame implements Runnable {
     /**
      * Creates new form Main
      */
-    public Main() {
+    public Main() throws FileNotFoundException, IOException {
         initComponents();
         setLocationRelativeTo(null);
         setTitle("Los Sintetizadores Antonio Ponce versión Ancalmo");
+
+  
 
     }
 
@@ -133,7 +144,8 @@ public class Main extends javax.swing.JFrame implements Runnable {
         if (!hiloGrabar.isAlive() && jLabel1.getText().equals("Grabando...")) {
             String nombreCancion = JOptionPane.showInputDialog("Nombre de la Canción");
             String categoriaCancion = JOptionPane.showInputDialog("Categoría de la Canción");
-
+            String caracteresCancion = jTextArea1.getText().replaceAll("[^a-zA-Z]", "");
+            Canciones cancion = new Canciones(nombreCancion, categoriaCancion, caracteresCancion);
             DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
             DefaultMutableTreeNode raiz = (DefaultMutableTreeNode) model.getRoot();
             boolean categoriaEncontrada = false;
@@ -147,7 +159,13 @@ public class Main extends javax.swing.JFrame implements Runnable {
                     model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
                     jLabel1.setText("");
                     jTextArea1.setText("");
-                    JOptionPane.showMessageDialog(null, "La canción fue agregada.");
+                    try {
+                        guardarDato(cancion);
+                    } catch (IOException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 
                     categoriaEncontrada = true;
                     break;
@@ -168,11 +186,15 @@ public class Main extends javax.swing.JFrame implements Runnable {
                         model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
                         jLabel1.setText("");
                         jTextArea1.setText("");
-                        JOptionPane.showMessageDialog(null, "La canción fue agregada.");
+                        try {
+                            guardarDato(cancion);
+                        } catch (IOException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ClassNotFoundException ex) {
+                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                        }
 
                         break;
-
-                    } else {
 
                     }
                 }
@@ -199,10 +221,28 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
     }
 
+    public static void guardarDato(Object datos) throws FileNotFoundException, IOException, ClassNotFoundException {
+
+        FileOutputStream archivo = new FileOutputStream(destino);
+        ObjectOutputStream escribirDatos = new ObjectOutputStream(archivo);
+        datosCanciones.add(datos);
+        escribirDatos.writeObject(datosCanciones);
+        escribirDatos.close();
+        JOptionPane.showMessageDialog(null, "La canción fue agregada. (Si usted agregó números en la cancion fueron eliminados)");
+
+        FileInputStream archivo2 = new FileInputStream(destino);
+
+        ObjectInputStream objeto = new ObjectInputStream(archivo2);
+
+        datosCanciones = (ArrayList) objeto.readObject();
+        objeto.close();
+
+    }
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws FileNotFoundException, IOException, ClassNotFoundException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -227,9 +267,20 @@ public class Main extends javax.swing.JFrame implements Runnable {
         //</editor-fold>
 
         /* Create and display the form */
+        FileInputStream archivo = new FileInputStream(destino);
+        if (archivo.available() != 0) {
+            ObjectInputStream objeto = new ObjectInputStream(archivo);
+
+            datosCanciones = (ArrayList) objeto.readObject();
+            objeto.close();
+        }
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Main().setVisible(true);
+                try {
+                    new Main().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -246,5 +297,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
+    private static String destino = "C:\\Users\\Admin\\Desktop\\UNITEC\\LAB2\\Examen2P2_CarlosBarahona_12041015\\datos.txt";
     Thread hiloGrabar;
+    static ArrayList datosCanciones = new ArrayList();
 }
