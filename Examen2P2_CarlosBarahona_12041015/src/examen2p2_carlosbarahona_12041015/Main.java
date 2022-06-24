@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  *
@@ -133,6 +134,11 @@ public class Main extends javax.swing.JFrame implements Runnable {
         });
 
         jButton3.setText("Reproducir Canción");
+        jButton3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton3MouseClicked(evt);
+            }
+        });
 
         jButton4.setText("Pausar Canción");
 
@@ -186,14 +192,15 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        hiloGrabar = new Thread((Runnable) this);
-        hiloGrabar.start();
+        hiloUtilizado = "grabar";
+        hilo = new Thread((Runnable) this);
+        hilo.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        if (!hiloGrabar.isAlive() && jLabel1.getText().equals("Grabando...")) {
-            
+        if (!hilo.isAlive() && jLabel1.getText().equals("Grabando...")) {
+
             String nombreCancion = JOptionPane.showInputDialog("Nombre de la Canción");
             String categoriaCancion = JOptionPane.showInputDialog("Categoría de la Canción");
             String caracteresCancion = jTextArea1.getText().replaceAll("[^a-zA-Z]", "");
@@ -267,25 +274,70 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
     private void jTextArea1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyTyped
         // TODO add your handling code here:
-        char texto=evt.getKeyChar();
-        int valor=texto;
-        valor=valor-40;
-        jProgressBar1.setValue(valor);
+        if (jTextArea1.isEditable()) {
+            hiloUtilizado = "typear";
+            char texto = evt.getKeyChar();
+            int valor = texto;
+            valor = valor - 40;
+            jProgressBar1.setValue(valor);
+            hilo = new Thread((Runnable) this);
+            hilo.start();
+        }
+
+
     }//GEN-LAST:event_jTextArea1KeyTyped
 
-    public void run() {
-
-        try {
-            for (int i = 3; i >= 1; i--) {
-
-                jLabel1.setText("Grabando en " + i + "...");
-
-                Thread.sleep(1000);
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+        // TODO add your handling code here:
+           int row = jTree1.getMinSelectionRow();
+        jTree1.setSelectionRow(row);
+        Object Posicion = jTree1.getSelectionPath().getLastPathComponent();
+        DefaultMutableTreeNode nodeSeleccionado = (DefaultMutableTreeNode) Posicion;
+        Canciones cancion=null;
+        boolean esCancion=false;
+        for (int i = 0; i < datosCanciones.size(); i++) {
+            if(((Canciones)datosCanciones.get(i)).getNombre().equals(nodeSeleccionado.getUserObject())){
+                cancion=((Canciones)datosCanciones.get(i));
+                esCancion=true;
+                break;
+            }else{
+                esCancion=false;
             }
-               jTextArea1.setEditable(true);
-            jLabel1.setText("Grabando...");
-        } catch (Exception e) {
-            System.out.println(e);
+        }
+         if(esCancion){
+             
+             System.out.println(cancion);
+         }else{
+             JOptionPane.showMessageDialog(null, "No es una canción.");
+         }
+    }//GEN-LAST:event_jButton3MouseClicked
+
+    public void run() {
+        if (hiloUtilizado.equals("grabar")) {
+            try {
+                for (int i = 3; i >= 1; i--) {
+
+                    jLabel1.setText("Grabando en " + i + "...");
+
+                    Thread.sleep(1000);
+                }
+                jTextArea1.setEditable(true);
+                jLabel1.setText("Grabando...");
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else if (hiloUtilizado.equals("typear")) {
+            while (jProgressBar1.getValue() >= 0) {
+                try {
+                    Thread.sleep(1000);
+
+                    jProgressBar1.setValue(jProgressBar1.getValue() - 10);
+
+                } catch (InterruptedException ex) {
+
+                }
+
+            }
         }
 
     }
@@ -297,7 +349,7 @@ public class Main extends javax.swing.JFrame implements Runnable {
         datosCanciones.add(datos);
         escribirDatos.writeObject(datosCanciones);
         escribirDatos.close();
-           
+
         JOptionPane.showMessageDialog(null, "La canción fue agregada. (Si usted agregó números en la cancion fueron eliminados)");
 
         FileInputStream archivo2 = new FileInputStream(destino);
@@ -306,7 +358,6 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
         datosCanciones = (ArrayList) objeto.readObject();
         objeto.close();
-        
 
     }
 
@@ -370,9 +421,8 @@ public class Main extends javax.swing.JFrame implements Runnable {
     private javax.swing.JTree jTree1;
     // End of variables declaration//GEN-END:variables
     private static String destino = "C:\\Users\\Admin\\Desktop\\UNITEC\\LAB2\\Examen2P2_CarlosBarahona_12041015\\datos.txt";
-    Thread hiloGrabar;
-    Thread hiloGrabando;
-    Thread hiloReproducir;
+    Thread hilo;
+    private static String hiloUtilizado = "";
     private static int charIndex = 0;
     private static ArrayList datosCanciones = new ArrayList();
 }
