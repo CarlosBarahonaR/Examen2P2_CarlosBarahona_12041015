@@ -5,11 +5,13 @@
  */
 package examen2p2_carlosbarahona_12041015;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Admin
  */
-public class Canciones {
+public class Canciones implements Serializable {
 
     private String nombre;
     private String categoría;

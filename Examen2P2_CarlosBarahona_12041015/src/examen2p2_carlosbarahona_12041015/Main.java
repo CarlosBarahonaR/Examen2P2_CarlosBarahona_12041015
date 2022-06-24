@@ -33,7 +33,50 @@ public class Main extends javax.swing.JFrame implements Runnable {
         setLocationRelativeTo(null);
         setTitle("Los Sintetizadores Antonio Ponce versión Ancalmo");
 
-  
+        if (datosCanciones.size() > 0) {
+            for (int x = 0; x < datosCanciones.size(); x++) {
+
+                if (datosCanciones.get(x) instanceof Canciones) {
+
+                    DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
+                    DefaultMutableTreeNode raiz = (DefaultMutableTreeNode) model.getRoot();
+                    boolean categoriaEncontrada = false;
+                    Enumeration canciones = raiz.children();
+                    while (canciones.hasMoreElements()) {
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) canciones.nextElement();
+                        if (node.toString().toLowerCase().equals(((Canciones) datosCanciones.get(x)).getCategoría().toLowerCase())) {
+
+                            DefaultMutableTreeNode nombreCancionNode = new DefaultMutableTreeNode(((Canciones) datosCanciones.get(x)).getNombre());
+                            node.add(nombreCancionNode);
+                            model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
+
+                            categoriaEncontrada = true;
+                            break;
+
+                        } else {
+                            categoriaEncontrada = false;
+                        }
+                    }
+                    if (!categoriaEncontrada) {
+                        model.insertNodeInto(new DefaultMutableTreeNode(((Canciones) datosCanciones.get(x)).getCategoría()), raiz, raiz.getChildCount());
+                        Enumeration canciones2 = raiz.children();
+                        while (canciones2.hasMoreElements()) {
+                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) canciones2.nextElement();
+                            if (node.toString().toLowerCase().equals(((Canciones) datosCanciones.get(x)).getCategoría().toLowerCase())) {
+
+                                DefaultMutableTreeNode nombreCancionNode = new DefaultMutableTreeNode(((Canciones) datosCanciones.get(x)).getNombre());
+                                node.add(nombreCancionNode);
+                                model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
+
+                                break;
+
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
 
     }
 
@@ -65,6 +108,11 @@ public class Main extends javax.swing.JFrame implements Runnable {
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextArea1KeyPressed(evt);
+            }
+        });
         jScrollPane2.setViewportView(jTextArea1);
 
         jButton1.setText("Grabar canción");
@@ -205,6 +253,17 @@ public class Main extends javax.swing.JFrame implements Runnable {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jTextArea1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextArea1KeyPressed
+        // TODO add your handling code here:
+        String texto = jTextArea1.getText();
+        for (int i = charIndex; i < texto.length(); i++) {
+            char caracter=texto.charAt(i);
+            System.out.println(i+": "+caracter);
+            charIndex = i;
+        }
+     
+    }//GEN-LAST:event_jTextArea1KeyPressed
+
     public void run() {
 
         try {
@@ -299,5 +358,8 @@ public class Main extends javax.swing.JFrame implements Runnable {
     // End of variables declaration//GEN-END:variables
     private static String destino = "C:\\Users\\Admin\\Desktop\\UNITEC\\LAB2\\Examen2P2_CarlosBarahona_12041015\\datos.txt";
     Thread hiloGrabar;
-    static ArrayList datosCanciones = new ArrayList();
+    Thread hiloGrabando;
+    Thread hiloReproducir;
+    private static int charIndex=0;
+    private static ArrayList datosCanciones = new ArrayList();
 }
