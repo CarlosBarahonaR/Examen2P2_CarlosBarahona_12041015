@@ -5,20 +5,25 @@
  */
 package examen2p2_carlosbarahona_12041015;
 
+import java.util.Enumeration;
+import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
 /**
  *
  * @author Admin
  */
-public class Main extends javax.swing.JFrame implements Runnable  {
+public class Main extends javax.swing.JFrame implements Runnable {
 
     /**
      * Creates new form Main
      */
     public Main() {
-             initComponents();
+        initComponents();
         setLocationRelativeTo(null);
         setTitle("Los Sintetizadores Antonio Ponce versión Ancalmo");
-   
+
     }
 
     /**
@@ -59,6 +64,11 @@ public class Main extends javax.swing.JFrame implements Runnable  {
         });
 
         jButton2.setText("Guardar Canción");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Reproducir Canción");
 
@@ -114,27 +124,81 @@ public class Main extends javax.swing.JFrame implements Runnable  {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-         hiloGrabar = new Thread((Runnable) this);
+        hiloGrabar = new Thread((Runnable) this);
         hiloGrabar.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-     public void run() {
-        
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        if (!hiloGrabar.isAlive() && jLabel1.getText().equals("Grabando...")) {
+            String nombreCancion = JOptionPane.showInputDialog("Nombre de la Canción");
+            String categoriaCancion = JOptionPane.showInputDialog("Categoría de la Canción");
 
-            try {
-                for (int i = 3; i >= 1; i--) {
-                
-                    jLabel1.setText("Grabando en "+i+"...");
-                    
-                    Thread.sleep(1000);
+            DefaultTreeModel model = (DefaultTreeModel) jTree1.getModel();
+            DefaultMutableTreeNode raiz = (DefaultMutableTreeNode) model.getRoot();
+            boolean categoriaEncontrada = false;
+            Enumeration canciones = raiz.children();
+            while (canciones.hasMoreElements()) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) canciones.nextElement();
+                if (node.toString().toLowerCase().equals(categoriaCancion.toLowerCase())) {
+
+                    DefaultMutableTreeNode nombreCancionNode = new DefaultMutableTreeNode(nombreCancion);
+                    node.add(nombreCancionNode);
+                    model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
+                    jLabel1.setText("");
+                    jTextArea1.setText("");
+                    JOptionPane.showMessageDialog(null, "La canción fue agregada.");
+
+                    categoriaEncontrada = true;
+                    break;
+
+                } else {
+                    categoriaEncontrada = false;
                 }
-                jLabel1.setText("Grabando...");
-            } catch (Exception e) {
-                System.out.println(e);
             }
-       
+            if (!categoriaEncontrada) {
+                model.insertNodeInto(new DefaultMutableTreeNode(categoriaCancion), raiz, raiz.getChildCount());
+                Enumeration canciones2 = raiz.children();
+                while (canciones2.hasMoreElements()) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) canciones2.nextElement();
+                    if (node.toString().toLowerCase().equals(categoriaCancion.toLowerCase())) {
+
+                        DefaultMutableTreeNode nombreCancionNode = new DefaultMutableTreeNode(nombreCancion);
+                        node.add(nombreCancionNode);
+                        model.nodesWereInserted(node, new int[]{node.getChildCount() - 1});
+                        jLabel1.setText("");
+                        jTextArea1.setText("");
+                        JOptionPane.showMessageDialog(null, "La canción fue agregada.");
+
+                        break;
+
+                    } else {
+
+                    }
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Espere a que la canción este lista para grabar.");
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    public void run() {
+
+        try {
+            for (int i = 3; i >= 1; i--) {
+
+                jLabel1.setText("Grabando en " + i + "...");
+
+                Thread.sleep(1000);
+            }
+            jLabel1.setText("Grabando...");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
     }
-    
+
     /**
      * @param args the command line arguments
      */
